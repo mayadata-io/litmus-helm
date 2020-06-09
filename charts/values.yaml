@@ -1,0 +1,213 @@
+# Default values for raas.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameOverride: "raas"
+fullnameOverride: "raas"
+
+operatorName: "chaos-operator"
+
+replicaCount: 1
+
+operator:
+  image:
+    repository: litmuschaos/chaos-operator
+    tag: 1.4.0
+    pullPolicy: Always
+runner:
+  image:
+    repository: litmuschaos/chaos-runner
+    tag: 1.4.0
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host:
+      paths: []
+
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Support for https://docs.litmuschaos.io/docs/admin-mode
+administratorMode:
+  enabled: false
+
+# Support for disabling google analytics
+# https://docs.litmuschaos.io/docs/faq-general/#does-litmus-track-any-usage-metrics-on-the-test-clusters
+policies:
+  monitoring:
+    disabled: false
+
+exporter:
+  enabled: false
+  serviceMonitor:
+    enabled: false
+    additionalLabels: {}
+  image:
+    repository: litmuschaos/chaos-exporter
+    tag: latest
+    pullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 8080
+    annotations: {}
+
+  resources: {}
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+platform: Default
+
+server:
+  release: 1.9.0-ee
+  dockerSecret: directoronprem-registry-secret
+  protocol: http
+  url:
+  httpNodePort: 30380
+  httpsNodePort: 30381
+  apiAuthAccessMode: unrestricted
+  serverDefaultAccessGrant: true
+  apiUiEnabled: true
+  maxMemberCountInOneProject: 10
+  setupName: directoronprem
+  apiAuthExternalProviderEnabled: false
+  apiAuthExternalProviderConfigured:
+  apiAuthInternalProviderEnabled: true
+  apiAuthInternalProviderConfigured: localAuthConfig
+  apiAuthGithubClientId:
+  apiAuthGithubClientSecret:
+  apiAuthGoogleClientId:
+  apiAuthGoogleClientSecret:
+  clusterDomain: cluster.local
+  featureSubscriptionDisable: false
+  subscriptionType: internal
+  featureBillingDisable: true
+  billingType: external
+  featureEmailDisable: true
+  senderEmailAddress:
+  senderEmailPassword:
+  featureDocsDisable: false
+  docsUrl: https://help.mayadata.io/hc/en-us
+  featureChatBotDisable: true
+  slackConfigBotClientId:
+  slackConfigBotClientSecret:
+  slackNotificationWelcomeMessage:
+  featureKialiDisable: true
+  analyticsGoogleCode:
+  ## featureAnalyticsDisable should be set to false in director-charts public repo
+  featureAnalyticsDisable: false
+  autoconnectLocalCluster: true
+  # The host URL of the AD server
+  adHost:
+  # The base domain of the AD server
+  adDomain:
+  # The port number on which the AD server is listening
+  adPort: 636
+  adTLS: true
+  # an ADuser with read access to the AD server, someuser@domain.d1adSvcAccUser:
+  adSvcAccUser:
+  adSvcAccPwd:
+  adNameField: givenName
+  # default objectclass for users
+  adUserObjectClass: person
+  adGroupObjectClass: group
+  # connection timeout in milliseconds
+  adConnectionTimeout: 5000
+
+mysql:
+  #storageClass: openebs-jiva-default
+  storageClass: standard
+  storageCapacity: 50Gi
+
+mayaStore:
+  #storageClass: cstor-storage-class
+  storageClass: standard
+  storageCapacity: 10Gi
+
+curator:
+  retentionPeriod: 30
+## doc/charts/nginx/index.md
+## doc/architecture/decisions.md#nginx-ingress
+## Installation & configuration of charts/nginx-ingress
+nginx-ingress:
+  enabled: true
+  tcpExternalConfig: "true"
+  controller:
+    kind: DaemonSet
+    config:
+      hsts-include-subdomains: "false"
+      server-name-hash-bucket-size: "256"
+      enable-vts-status: "true"
+      use-http2: "false"
+      ssl-ciphers: "ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4"
+      ssl-protocols: "TLSv1.3 TLSv1.2"
+      server-tokens: "false"
+    extraArgs:
+      force-namespace-isolation: ""
+    service:
+      enabled: false
+      type: NodePort
+      nodePorts:
+        http: 30380
+        https: 30381
+    resources:
+      requests:
+        cpu: 100m
+        memory: 100Mi
+    publishService:
+      enabled: true
+    replicaCount: 1
+    minAvailable: 1
+    scope:
+      enabled: true
+    stats:
+      enabled: true
+    metrics:
+      enabled: true
+      service:
+        annotations:
+          prometheus.io/scrape: "true"
+          prometheus.io/port: "10254"
+  defaultBackend:
+    minAvailable: 1
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 5m
+        memory: 5Mi
+  rbac:
+    create: true
+  serviceAccount:
+    create: true
