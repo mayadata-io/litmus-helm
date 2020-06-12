@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "litmus.fullname" . }}
+  labels:
+    name: {{ include "litmus.name" . }}
+    chart: {{ include "litmus.chart" . }}
+    instance: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      name: {{ include "litmus.name" . }}
+      instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        name: {{ include "litmus.name" . }}
+        instance: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ include "litmus.fullname" . }}
+      containers:
+        - name: {{ .Values.operatorName }}
+          image: "{{ .Values.operator.image.repository }}:{{ .Values.operator.image.tag }}"
+          imagePullPolicy: {{ .Values.operator.image.pullPolicy }}
+          command:
+          - chaos-operator
+          env:
+            - name: CHAOS_RUNNER_IMAGE
+              value: "{{ .Values.runner.image.repository }}:{{ .Values.runner.image.tag }}"
+            - name: WATCH_NAMESPACE
+              value:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "chaos-operator"
+          {{- if .Values.policies.monitoring.disabled }}
+            - name: ANALYTICS
+              value: "FALSE"
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
