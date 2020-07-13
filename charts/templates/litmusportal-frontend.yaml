@@ -1,0 +1,27 @@
+{{ if .Values.litmusPortal.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: litmusportal-frontend
+  labels:
+    component: litmusportal-frontend
+    instance: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: litmusportal-frontend
+      instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        component: litmusportal-frontend
+        instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: litmusportal-frontend
+          image: "{{ .Values.litmusPortalFrontend.deployment.image.repository }}:{{ .Values.litmusPortalFrontend.deployment.image.tag }}"
+          imagePullPolicy: {{ .Values.litmusPortalFrontend.deployment.image.pullPolicy }}
+          ports:
+          - containerPort: {{ .Values.litmusPortalFrontend.deployment.containerPort }}
+{{ end }}

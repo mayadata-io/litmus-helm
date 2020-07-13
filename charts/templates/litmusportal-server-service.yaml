@@ -1,0 +1,17 @@
+{{ if .Values.litmusPortal.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: litmusportal-server-service
+spec:
+  type: {{ .Values.litmusPortalServer.service.type }}
+  ports:
+    - name: graphql-server
+      port: {{ .Values.litmusPortalServer.service.graphqlServer.port }}
+      targetPort: {{ .Values.litmusPortalServer.service.graphqlServer.targetPort }}
+    - name: auth-server
+      port: {{ .Values.litmusPortalServer.service.authServer.port }}
+      targetPort: {{ .Values.litmusPortalServer.service.authServer.targetPort }}
+  selector:
+    component: litmusportal-server
+{{ end }}

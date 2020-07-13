@@ -211,3 +211,55 @@ nginx-ingress:
     create: true
   serviceAccount:
     create: true
+
+litmusPortal:
+  enabled: true
+
+litmusPortalFrontend:
+  deployment:
+    image:
+      repository: litmuschaos/litmusportal-frontend
+      tag: ci
+      pullPolicy: Always
+    containerPort: 8080
+  service:
+    type: NodePort
+    port: 9091
+    targetPort: 80
+
+litmusPortalServer:
+  deployment:
+    graphqlServer:
+      image:
+        repository: litmuschaos/litmusportal-server
+        tag: ci
+        pullPolicy: Always
+      containerPort: 8080
+    authServer:
+      image:
+        repository: litmuschaos/litmusportal-auth-server
+        tag: ci
+        pullPolicy: Always
+      containerPort: 3000
+  service:
+    type: NodePort
+    graphqlServer:
+      port: 9002
+      targetPort: 8080
+    authServer:
+      port: 9003
+      targetPort: 3000
+    
+mongoDB:
+  deployment:
+    image:
+      repository: mongo
+      tag: "4.2.8"
+      pullPolicy: Always
+    containerPort: 27017
+    mountPath: "data/db"
+    claimName: "mongo-pv-claim"
+  service:
+    type: ClusterIP
+    port: 27017
+    targetPort: 27017

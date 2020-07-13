@@ -1,0 +1,15 @@
+{{ if .Values.litmusPortal.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mongo
+  name: mongo-service
+spec:
+  ports:
+    - port: {{ .Values.mongoDB.service.port }}
+      targetPort: {{ .Values.mongoDB.service.targetPort }}
+  selector:
+    component: database
+    instance: {{ .Release.Name }}
+{{ end }}
