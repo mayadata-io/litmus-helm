@@ -1,0 +1,36 @@
+{{ if .Values.litmusPortal.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+  labels:
+    app: mongo
+    component: database
+    instance: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: database
+      instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        component: database
+        instance: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: mongo
+        image: "{{ .Values.mongoDB.deployment.image.repository }}:{{ .Values.mongoDB.deployment.image.tag }}"
+        ports:
+        - containerPort: {{ .Values.mongoDB.deployment.containerPort }}
+        imagePullPolicy: {{ .Values.mongoDB.deployment.image.pullPolicy }}
+        volumeMounts:
+          - name: mongo-persistent-storage
+            mountPath: "{{ .Values.mongoDB.deployment.mountPath }}"
+      volumes:
+        - name: mongo-persistent-storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.mongoDB.deployment.claimName }}
+{{ end }}

@@ -1,0 +1,32 @@
+{{ if .Values.litmusPortal.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: litmusportal-server
+  labels:
+    component: litmusportal-server
+    instance: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: litmusportal-server
+      instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        component: litmusportal-server
+        instance: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: graphql-server
+        image: "{{ .Values.litmusPortalServer.deployment.graphqlServer.image.repository }}:{{ .Values.litmusPortalServer.deployment.graphqlServer.image.tag }}"
+        ports: 
+        - containerPort: {{ .Values.litmusPortalServer.deployment.graphqlServer.containerPort }}
+        imagePullPolicy: {{ .Values.litmusPortalServer.deployment.graphqlServer.image.pullPolicy }}
+      - name: auth-server
+        image: "{{ .Values.litmusPortalServer.deployment.authServer.image.repository }}:{{ .Values.litmusPortalServer.deployment.authServer.image.tag }}"
+        ports:
+        - containerPort:  {{ .Values.litmusPortalServer.deployment.authServer.containerPort }}
+        imagePullPolicy: {{ .Values.litmusPortalServer.deployment.authServer.image.pullPolicy }}
+{{ end }}

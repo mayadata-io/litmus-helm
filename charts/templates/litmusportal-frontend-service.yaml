@@ -1,0 +1,15 @@
+{{ if .Values.litmusPortal.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: litmusportal-frontend-service
+spec:
+  type: {{ .Values.litmusPortalFrontend.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.litmusPortalFrontend.service.port }}
+      targetPort: {{ .Values.litmusPortalFrontend.service.targetPort }}
+  selector:
+    component: litmusportal-frontend
+    instance: {{ .Release.Name }}
+{{ end }}
