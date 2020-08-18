@@ -1,0 +1,31 @@
+{{ if .Values.litmusPortal.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: self-deployer
+  labels:
+    component: self-deployer
+    instance: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: self-deployer
+      instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        component: self-deployer
+        instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: deployer
+          image: "{{ .Values.selfDeployer.container.image.repository }}:{{ .Values.selfDeployer.container.image.tag }}"
+          imagePullPolicy: {{ .Values.selfDeployer.container.image.pullPolicy }}
+          env:
+            - name: SERVER
+              value: "{{ .Values.selfDeployer.container.env.server }}"
+            - name: SELF_CLUSTER
+              value: "{{ .Values.selfDeployer.container.env.selfCluster }}"
+      serviceAccountName: {{ .Values.selfDeployer.serviceAccountName }}
+{{ end }}

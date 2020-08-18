@@ -9,6 +9,7 @@ spec:
     - name: graphql-server
       port: {{ .Values.litmusPortalServer.service.graphqlServer.port }}
       targetPort: {{ .Values.litmusPortalServer.service.graphqlServer.targetPort }}
+      nodePort: {{ .Values.litmusPortalServer.service.graphqlServer.nodePort }}
     - name: auth-server
       port: {{ .Values.litmusPortalServer.service.authServer.port }}
       targetPort: {{ .Values.litmusPortalServer.service.authServer.targetPort }}
