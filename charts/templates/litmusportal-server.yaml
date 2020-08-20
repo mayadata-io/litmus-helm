@@ -21,6 +21,15 @@ spec:
       containers:
       - name: graphql-server
         image: "{{ .Values.litmusPortalServer.deployment.graphqlServer.image.repository }}:{{ .Values.litmusPortalServer.deployment.graphqlServer.image.tag }}"
+        env:
+          - name: DB_SERVER
+            value: "{{ .Values.litmusPortalServer.deployment.graphqlServer.env.dbserver }}"
+          - name: JWT_SECRET
+            value: "{{ .Values.litmusPortalServer.deployment.graphqlServer.env.jwtSecret }}"
+          - name: EXTERNAL_ADDRESS
+            value: ""
+          - name: SERVICE_ADDRESS
+            value: "{{ .Values.litmusPortalServer.deployment.graphqlServer.env.serviceAddress }}"
         ports: 
         - containerPort: {{ .Values.litmusPortalServer.deployment.graphqlServer.containerPort }}
         imagePullPolicy: {{ .Values.litmusPortalServer.deployment.graphqlServer.image.pullPolicy }}

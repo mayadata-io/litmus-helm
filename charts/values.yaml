@@ -12,12 +12,12 @@ replicaCount: 1
 operator:
   image:
     repository: litmuschaos/chaos-operator
-    tag: 1.4.0
+    tag: 1.7.0
     pullPolicy: Always
 runner:
   image:
     repository: litmuschaos/chaos-runner
-    tag: 1.4.0
+    tag: 1.7.0
 
 service:
   type: ClusterIP
@@ -56,9 +56,8 @@ tolerations: []
 
 affinity: {}
 
-# Support for https://docs.litmuschaos.io/docs/admin-mode
-administratorMode:
-  enabled: false
+# Supports: standard, admin, namespaced
+operatorMode: standard
 
 # Support for disabling google analytics
 # https://docs.litmuschaos.io/docs/faq-general/#does-litmus-track-any-usage-metrics-on-the-test-clusters
@@ -111,6 +110,10 @@ litmusPortalServer:
         tag: ci
         pullPolicy: Always
       containerPort: 8080
+      env:
+        dbserver: mongo-service:27017
+        jwtSecret: 12345678
+        serviceAddress: litmusportal-server-service:8080
     authServer:
       image:
         repository: litmuschaos/litmusportal-auth-server
@@ -122,6 +125,7 @@ litmusPortalServer:
     graphqlServer:
       port: 9002
       targetPort: 8080
+      nodePort: 31000
     authServer:
       port: 9003
       targetPort: 3000
@@ -139,3 +143,14 @@ mongoDB:
     type: ClusterIP
     port: 27017
     targetPort: 27017
+
+selfDeployer:
+  container:
+    image:
+      repository: litmuschaos/litmusportal-self-deployer
+      tag: ci
+      pullPolicy: Always
+    env:
+      server: http://litmusportal-server-service:8080
+      selfCluster: true
+  serviceAccountName: litmus-svc-account
